@@ -1,0 +1,43 @@
+{
+	"name": "ds_lk_metadata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_bronze",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Source",
+				"type": "varchar"
+			},
+			{
+				"name": "SourceTable",
+				"type": "varchar"
+			},
+			{
+				"name": "Destination",
+				"type": "varchar"
+			},
+			{
+				"name": "DestinationTable",
+				"type": "varchar"
+			},
+			{
+				"name": "Schema",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "b_DBMetadata"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

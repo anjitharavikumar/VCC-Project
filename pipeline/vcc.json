@@ -1,0 +1,356 @@
+{
+	"name": "vcc",
+	"properties": {
+		"activities": [
+			{
+				"name": "lk_bronze_silver",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "fe_source_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT * \nFROM dbo.b_DBMetadata\nWHERE Source = 'bronze_db'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_lk_metadata",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "fe_bronze_silver",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "lk_bronze_silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('lk_bronze_silver').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "cp_bronze_silver",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_bronze_source",
+									"type": "DatasetReference",
+									"parameters": {
+										"Source": {
+											"value": "@item().Source",
+											"type": "Expression"
+										},
+										"SourceTable": {
+											"value": "@item().SourceTable",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@item().Schema",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_silver_sink",
+									"type": "DatasetReference",
+									"parameters": {
+										"Destination": {
+											"value": "@item().Destination",
+											"type": "Expression"
+										},
+										"DestinationTable": {
+											"value": "@item().DestinationTable",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@item().Schema",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "lk_source_bronze",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "cp_s3_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT * \nFROM dbo.b_DBMetadata\nWHERE Source = 'source_db'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_lk_metadata",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "fe_source_bronze",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "lk_source_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('lk_source_bronze').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "cp_sourcedb_bronze",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_sourcedb_source",
+									"type": "DatasetReference",
+									"parameters": {
+										"Source": {
+											"value": "@item().Source",
+											"type": "Expression"
+										},
+										"SourceTable": {
+											"value": "@item().SourceTable",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@item().Schema",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_bronze_sink",
+									"type": "DatasetReference",
+									"parameters": {
+										"Destination": {
+											"value": "@item().Destination",
+											"type": "Expression"
+										},
+										"DestinationTable": {
+											"value": "@item().DestinationTable",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@item().Schema",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "cleaning_script",
+				"description": "",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "fe_bronze_silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_silver",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "UPDATE [dbo].[s_products]\nSET [Category] = \n    CASE \n        WHEN [Category] = 'Chiken Shawarma' THEN 'Chicken Shawarma'\n        WHEN [Category] = 'Mocktail' THEN 'Mocktails'\n        WHEN [Category] = 'Juice' THEN 'Juices'\n        WHEN [Category] = 'Al-Fahm' THEN 'Al Fahm'\n        ELSE [Category]\n    END;\n\nUPDATE [dbo].[s_products]\nSET [Item_Name] = \n    CASE \n        WHEN [Item_Name] LIKE '%Chiken%' THEN 'Chicken Shawarma'\n        WHEN [Item_Name] LIKE '%Watermleon%' THEN 'Watermelon Juice'\n        WHEN [Item_Name] LIKE '%Blue Lagun%' THEN 'Blue Lagoon'\n        ELSE [Item_Name]\n    END;"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "cp_s3_bronze",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AmazonS3ReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": true,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_s3bucket_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_bronzes3_sink",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-07-20T07:13:28Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

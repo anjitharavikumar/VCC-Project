@@ -1,0 +1,57 @@
+{
+	"name": "ds_silver_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_silver",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Destination": {
+				"type": "string",
+				"defaultValue": "Destination"
+			},
+			"DestinationTable": {
+				"type": "string",
+				"defaultValue": "DestinationTable"
+			},
+			"Schema": {
+				"type": "string",
+				"defaultValue": "Schema"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Order_ID",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Item_ID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Qty",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "Amount_Rs",
+				"type": "smallint",
+				"precision": 5
+			}
+		],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().Schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().DestinationTable",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,37 @@
+{
+	"name": "ds_bronze_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_bronze",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Destination": {
+				"type": "string",
+				"defaultValue": "Destination"
+			},
+			"DestinationTable": {
+				"type": "string",
+				"defaultValue": "DestinationTable"
+			},
+			"Schema": {
+				"type": "string",
+				"defaultValue": "Schema"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().Schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().DestinationTable",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

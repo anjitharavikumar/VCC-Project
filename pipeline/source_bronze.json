@@ -1,0 +1,132 @@
+{
+	"name": "source_bronze",
+	"properties": {
+		"activities": [
+			{
+				"name": "lk_source_bronze",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT * \nFROM dbo.b_DBMetadata\nWHERE Source = 'source_db'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_lk_metadata",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "fe_source_bronze",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "lk_source_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('lk_source_bronze').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "cp_bronze_silver",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_sourcedb_source",
+									"type": "DatasetReference",
+									"parameters": {
+										"Source": {
+											"value": "@item().Source",
+											"type": "Expression"
+										},
+										"SourceTable": {
+											"value": "@item().SourceTable",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@item().Schema",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_bronze_sink",
+									"type": "DatasetReference",
+									"parameters": {
+										"Destination": {
+											"value": "@item().Destination",
+											"type": "Expression"
+										},
+										"DestinationTable": {
+											"value": "@item().DestinationTable",
+											"type": "Expression"
+										},
+										"Schema": {
+											"value": "@item().Schema",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-07-19T15:34:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

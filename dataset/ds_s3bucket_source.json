@@ -1,0 +1,41 @@
+{
+	"name": "ds_s3bucket_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AmazonS3",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AmazonS3Location",
+				"bucketName": "vcc-project-amruj",
+				"fileName": "Order_item_table.csv"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Order_ID",
+				"type": "String"
+			},
+			{
+				"name": "Item_ID",
+				"type": "String"
+			},
+			{
+				"name": "Qty",
+				"type": "String"
+			},
+			{
+				"name": "Amount Rs",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

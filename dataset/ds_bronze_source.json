@@ -1,0 +1,57 @@
+{
+	"name": "ds_bronze_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_bronze",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Source": {
+				"type": "string",
+				"defaultValue": "Source"
+			},
+			"SourceTable": {
+				"type": "string",
+				"defaultValue": "SourceTable"
+			},
+			"Schema": {
+				"type": "string",
+				"defaultValue": "Schema"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Order_ID",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Item_ID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Qty",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "Amount_Rs",
+				"type": "smallint",
+				"precision": 5
+			}
+		],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().Schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().SourceTable",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

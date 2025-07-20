@@ -1,0 +1,9 @@
+{
+	"name": "vccadf",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6a3a732b-a151-46be-9c92-6aa977242448",
+		"tenantId": "96cb47a1-dcbd-4193-a7f1-50b185f35394"
+	}
+}

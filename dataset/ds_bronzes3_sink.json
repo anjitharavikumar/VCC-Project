@@ -1,0 +1,17 @@
+{
+	"name": "ds_bronzes3_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_bronze",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "b_Order_item_table"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

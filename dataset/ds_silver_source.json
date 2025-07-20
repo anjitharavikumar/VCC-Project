@@ -1,0 +1,62 @@
+{
+	"name": "ds_silver_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_silver",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Order_ID",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Timestamp",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "Channel",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Sale_Hour",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Sale_Date",
+				"type": "date"
+			},
+			{
+				"name": "Item_ID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Category",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Item_Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Qty",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "Amount_Rs",
+				"type": "smallint",
+				"precision": 5
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "S_salesdetails"
+		}
+	}
+}

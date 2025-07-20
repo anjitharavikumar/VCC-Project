@@ -1,0 +1,16 @@
+{
+	"name": "ds_gold_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_gold",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "salesdetails"
+		}
+	}
+}
